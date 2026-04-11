@@ -86,6 +86,16 @@ class ImmichApi {
     });
   }
 
+  async removeAssetsFromAlbum(albumId: string, assetIds: string[]): Promise<void> {
+    await this.fetch(`/albums/${albumId}/assets`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids: assetIds }),
+    });
+  }
+
   async getAsset(id: string): Promise<Asset> {
     return this.fetch<Asset>(`/assets/${id}`);
   }

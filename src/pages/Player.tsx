@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { immichApi } from '../api/immich';
+import { useAlbums } from '../hooks/useAlbums';
 import type { Asset } from '../api/types';
+import { Button } from '../components/common/Button';
 import styles from './Player.module.css';
 
 function formatTime(seconds: number): string {
@@ -28,6 +30,7 @@ function formatDate(dateStr: string): string {
 export function Player() {
   const { assetId, albumId } = useParams<{ assetId: string; albumId?: string }>();
   const navigate = useNavigate();
+  const { journalAlbums } = useAlbums();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -35,6 +38,13 @@ export function Player() {
   const [asset, setAsset] = useState<Asset | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDescription, setEditDescription] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [currentAlbumId, setCurrentAlbumId] = useState<string | undefined>(albumId);
+  const [isChangingAlbum, setIsChangingAlbum] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -154,6 +164,53 @@ export function Player() {
     }
   };
 
+  const handleEditStart = () => {
+    setEditDescription(asset?.exifInfo?.description || '');
+    setIsEditing(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditDescription('');
+  };
+
+  const handleEditSave = async () => {
+    if (!assetId) return;
+    setIsSaving(true);
+    try {
+      await immichApi.updateAsset(assetId, { description: editDescription });
+      setAsset(prev => prev ? {
+        ...prev,
+        exifInfo: { ...prev.exifInfo, description: editDescription }
+      } : null);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to save description:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAlbumChange = async (newAlbumId: string) => {
+    if (!assetId || newAlbumId === currentAlbumId) return;
+    setIsChangingAlbum(true);
+    try {
+      // Remove from current album if exists
+      if (currentAlbumId) {
+        await immichApi.removeAssetsFromAlbum(currentAlbumId, [assetId]);
+      }
+      // Add to new album
+      await immichApi.addAssetsToAlbum(newAlbumId, [assetId]);
+      setCurrentAlbumId(newAlbumId);
+      // Update URL to reflect new album
+      navigate(`/album/${newAlbumId}/video/${assetId}`, { replace: true });
+    } catch (err) {
+      console.error('Failed to change album:', err);
+    } finally {
+      setIsChangingAlbum(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -184,6 +241,13 @@ export function Player() {
 
   return (
     <div className={styles.container}>
+      <button className={styles.backButton} onClick={handleBack}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
       <div
         ref={containerRef}
         className={`${styles.playerWrapper} ${showControls ? '' : styles.hideControls}`}
@@ -202,12 +266,6 @@ export function Player() {
         />
 
         <div className={styles.controls}>
-          <button className={styles.backButtonOverlay} onClick={handleBack}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-
           <div className={styles.bottomControls}>
             <div
               ref={progressRef}
@@ -283,11 +341,58 @@ export function Player() {
       </div>
 
       <div className={styles.metadata}>
-        <h1 className={styles.title}>{asset.originalFileName}</h1>
+        <h1 className={styles.title}>
+          {asset.exifInfo?.description || asset.originalFileName}
+        </h1>
         <p className={styles.date}>{formatDate(asset.fileCreatedAt)}</p>
-        {asset.exifInfo?.description && (
-          <p className={styles.description}>{asset.exifInfo.description}</p>
-        )}
+
+        <div className={styles.descriptionSection}>
+          {isEditing ? (
+            <div className={styles.editForm}>
+              <textarea
+                className={styles.editTextarea}
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Add a description..."
+                rows={3}
+                autoFocus
+              />
+              <div className={styles.editActions}>
+                <Button variant="ghost" onClick={handleEditCancel} disabled={isSaving}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditSave} isLoading={isSaving}>
+                  Save
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button className={styles.editButton} onClick={handleEditStart}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              {asset.exifInfo?.description ? 'Edit description' : 'Add description'}
+            </button>
+          )}
+        </div>
+
+        <div className={styles.albumSection}>
+          <label className={styles.albumLabel}>Album</label>
+          <select
+            className={styles.albumSelect}
+            value={currentAlbumId || ''}
+            onChange={(e) => handleAlbumChange(e.target.value)}
+            disabled={isChangingAlbum}
+          >
+            {!currentAlbumId && <option value="">Select an album</option>}
+            {journalAlbums.map((album) => (
+              <option key={album.id} value={album.id}>
+                {album.albumName}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
