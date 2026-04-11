@@ -24,7 +24,7 @@ export function Header() {
             to="/record"
             className={`${styles.navLink} ${location.pathname === '/record' ? styles.active : ''}`}
           >
-            Record
+            Upload
           </Link>
           <Link
             to="/settings"

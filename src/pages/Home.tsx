@@ -109,7 +109,7 @@ export function Home() {
             Create albums starting with "JOURNAL" in Immich to organize your video journals.
           </p>
           <Link to="/record">
-            <Button>Record a Video</Button>
+            <Button>Upload a Video</Button>
           </Link>
         </div>
       </div>
@@ -120,15 +120,6 @@ export function Home() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Video Journals</h1>
-        <Link to="/record">
-          <Button>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="12" r="3" fill="currentColor" />
-            </svg>
-            Record
-          </Button>
-        </Link>
       </header>
 
       <div className={styles.albums}>

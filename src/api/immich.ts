@@ -100,14 +100,14 @@ class ImmichApi {
     return `${base}/assets/${assetId}/video/playback?apiKey=${this.apiKey}`;
   }
 
-  async uploadAsset(file: File, deviceAssetId?: string): Promise<UploadResponse> {
+  async uploadAsset(file: File, description?: string): Promise<UploadResponse> {
     if (!this.isConfigured()) {
       throw new Error('API not configured');
     }
 
     const formData = new FormData();
     formData.append('assetData', file);
-    formData.append('deviceAssetId', deviceAssetId || `broll-${Date.now()}`);
+    formData.append('deviceAssetId', `broll-${Date.now()}`);
     formData.append('deviceId', 'broll-web');
     formData.append('fileCreatedAt', new Date().toISOString());
     formData.append('fileModifiedAt', new Date().toISOString());
@@ -128,7 +128,37 @@ class ImmichApi {
       throw error;
     }
 
-    return response.json();
+    const result: UploadResponse = await response.json();
+
+    // Update description if provided
+    if (description) {
+      await this.updateAsset(result.id, { description });
+    }
+
+    return result;
+  }
+
+  async updateAsset(assetId: string, data: { description?: string }): Promise<void> {
+    if (!this.isConfigured()) {
+      throw new Error('API not configured');
+    }
+
+    const response = await fetch(`${this.getApiBase()}/assets/${assetId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json().catch(() => ({
+        message: response.statusText,
+        statusCode: response.status,
+      }));
+      throw error;
+    }
   }
 }
 

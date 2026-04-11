@@ -80,7 +80,9 @@ export function VideoCard({ asset, albumId }: VideoCardProps) {
         )}
       </div>
       <div className={styles.info}>
-        <h3 className={styles.title}>{asset.originalFileName}</h3>
+        <h3 className={styles.title}>
+          {asset.exifInfo?.description || asset.originalFileName}
+        </h3>
         <p className={styles.date}>{formatDate(asset.fileCreatedAt)}</p>
       </div>
     </Link>
