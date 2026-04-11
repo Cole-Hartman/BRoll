@@ -1,0 +1,236 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.playerWrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: black;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.controls {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  opacity: 1;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.controls > * {
+  pointer-events: auto;
+}
+
+.playerWrapper.hideControls .controls {
+  opacity: 0;
+}
+
+.playerWrapper.hideControls {
+  cursor: none;
+}
+
+.backButtonOverlay {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+
+.backButtonOverlay:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.bottomControls {
+  padding: var(--space-4);
+}
+
+.progressBar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  margin-bottom: var(--space-3);
+  transition: height var(--transition-fast);
+}
+
+.progressBar:hover {
+  height: 6px;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+  transition: width 0.1s linear;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: white;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.controlButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.volumeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.volumeSlider {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.time {
+  font-size: var(--text-sm);
+  color: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.metadata {
+  padding: var(--space-4) 0;
+}
+
+.title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-2);
+}
+
+.date {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.description {
+  color: var(--color-text-primary);
+  line-height: 1.7;
+}
+
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 400px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-bg-elevated);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.backButton {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-accent);
+  color: white;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.backButton:hover {
+  background: var(--color-accent-hover);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  .playerWrapper {
+    border-radius: var(--radius-lg);
+  }
+
+  .volumeControl {
+    display: none;
+  }
+
+  .title {
+    font-size: var(--text-xl);
+  }
+}

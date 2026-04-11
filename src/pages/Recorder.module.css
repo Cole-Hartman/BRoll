@@ -1,0 +1,246 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.modeToggle {
+  display: flex;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+}
+
+.modeButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.modeButton:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.modeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modeButton.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.videoArea {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: 100%;
+  color: var(--color-text-secondary);
+}
+
+.placeholderIcon {
+  color: var(--color-text-muted);
+}
+
+.placeholderText {
+  text-align: center;
+  max-width: 300px;
+}
+
+.recordingIndicator {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: var(--radius-md);
+}
+
+.recordingDot {
+  width: 12px;
+  height: 12px;
+  background: var(--color-error);
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.recordingDot.paused {
+  animation: none;
+  background: var(--color-warning);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.recordingTime {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.errorOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--color-error);
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.controlsArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.controlsRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.recordIcon {
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.label {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.select {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.uploadError {
+  padding: var(--space-3) var(--space-4);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--color-error);
+  text-align: center;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-4);
+  min-height: 400px;
+}
+
+.empty h2 {
+  font-size: var(--text-2xl);
+}
+
+.empty p {
+  color: var(--color-text-secondary);
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: var(--text-2xl);
+  }
+
+  .videoArea {
+    border-radius: var(--radius-lg);
+  }
+}
