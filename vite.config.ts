@@ -5,7 +5,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    base: '/BRoll/',
+    base: '/',
     plugins: [react()],
     server: {
       port: 3000,
