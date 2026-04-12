@@ -3,13 +3,11 @@ import type { Album, Asset, UploadResponse, ApiError } from './types';
 class ImmichApi {
 	private serverUrl: string = '';
 	private apiKey: string = '';
-	private useProxy: boolean = false;
 
 	configure(serverUrl: string, apiKey: string) {
 		this.serverUrl = serverUrl.replace(/\/$/, '');
 		this.apiKey = apiKey;
 		// Use proxy in development when VITE_IMMICH_URL is set
-		this.useProxy = import.meta.env.DEV && !!import.meta.env.VITE_IMMICH_URL;
 	}
 
 	isConfigured(): boolean {
