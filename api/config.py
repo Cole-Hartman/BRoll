@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     whisper_model: str = "base"
     whisper_compute_type: str = "int8"
     cors_origins: str = "http://localhost:3000"
+    app_base_url: str = ""
 
     class Config:
         env_file = ".env"

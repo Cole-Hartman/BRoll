@@ -1,6 +1,7 @@
 import tempfile
 import os
 from typing import Optional
+from urllib.parse import urljoin
 
 import httpx
 from faster_whisper import WhisperModel
@@ -23,11 +24,32 @@ def get_model() -> WhisperModel:
     return _model
 
 
+def resolve_video_url(video_url: str) -> str:
+    """Convert relative video paths into absolute URLs for server-side fetches."""
+    if video_url.startswith(("http://", "https://")):
+        return video_url
+
+    if video_url.startswith("/"):
+        if not settings.app_base_url:
+            raise ValueError(
+                "Relative videoUrl provided but APP_BASE_URL is not set. "
+                "Set APP_BASE_URL to your public app origin (e.g. https://example.com)."
+            )
+        return urljoin(settings.app_base_url.rstrip("/") + "/", video_url.lstrip("/"))
+
+    raise ValueError(
+        "Invalid videoUrl. Expected absolute URL (http:// or https://) "
+        "or root-relative path starting with '/'."
+    )
+
+
 async def download_video(video_url: str, api_key: str) -> str:
     """Download video from Immich and return path to temp file."""
+    resolved_url = resolve_video_url(video_url)
+
     async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(
-            video_url,
+            resolved_url,
             headers={"x-api-key": api_key},
             follow_redirects=True,
         )
