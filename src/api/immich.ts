@@ -167,6 +167,33 @@ class ImmichApi {
 			throw error;
 		}
 	}
+
+	/**
+	 * Move the asset to Immich trash (soft delete). Use Immich to restore or empty trash later.
+	 * `force: false` — see https://api.immich.app/endpoints/assets/deleteAssets
+	 */
+	async trashAsset(assetId: string): Promise<void> {
+		if (!this.isConfigured()) {
+			throw new Error('API not configured');
+		}
+
+		const response = await fetch(`${this.getApiBase()}/assets`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'x-api-key': this.apiKey,
+			},
+			body: JSON.stringify({ ids: [assetId], force: false }),
+		});
+
+		if (!response.ok) {
+			const error: ApiError = await response.json().catch(() => ({
+				message: response.statusText,
+				statusCode: response.status,
+			}));
+			throw error;
+		}
+	}
 }
 
 export const immichApi = new ImmichApi();

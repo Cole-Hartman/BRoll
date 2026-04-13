@@ -59,6 +59,8 @@ export function Player() {
   const [transcriptionLoading, setTranscriptionLoading] = useState(true);
   const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const hideControlsTimer = useRef<number | null>(null);
 
@@ -247,6 +249,34 @@ export function Player() {
     }
   };
 
+  const handleDeleteVideo = async () => {
+    if (!assetId) return;
+    const confirmed = window.confirm(
+      'Move this video to Immich trash and remove its stored transcription in BRoll? You can restore the file from Immich later.'
+    );
+    if (!confirmed) return;
+
+    setDeleteError(null);
+    setIsDeleting(true);
+    try {
+      await immichApi.trashAsset(assetId);
+      await transcriptionApi.deleteTranscription(assetId);
+      if (albumId) {
+        navigate(`/album/${albumId}`);
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: string }).message)
+          : 'Failed to move video to trash';
+      setDeleteError(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -430,6 +460,27 @@ export function Player() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className={styles.deleteSection}>
+              <p className={styles.deleteHint}>
+                Moves the video to Immich trash and removes the transcription stored in BRoll.
+              </p>
+              {deleteError && (
+                <p className={styles.deleteErrorText} role="alert">
+                  {deleteError}
+                </p>
+              )}
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                onClick={handleDeleteVideo}
+                isLoading={isDeleting}
+                disabled={isDeleting}
+              >
+                Trash video & transcription
+              </Button>
             </div>
           </div>
         </div>
