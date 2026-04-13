@@ -1,10 +1,19 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Install ffmpeg for audio extraction
+# Install build dependencies for PyAV and ffmpeg
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    build-essential \
+    pkg-config \
+    libavformat-dev \
+    libavcodec-dev \
+    libavdevice-dev \
+    libavutil-dev \
+    libswscale-dev \
+    libswresample-dev \
+    libavfilter-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
