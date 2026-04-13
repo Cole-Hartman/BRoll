@@ -66,3 +66,17 @@ export interface ApiError {
 	statusCode: number;
 	error?: string;
 }
+
+export interface TranscriptionSegment {
+	start: number;
+	end: number;
+	text: string;
+}
+
+export interface TranscriptionResult {
+	assetId: string;
+	text: string;
+	segments: TranscriptionSegment[];
+	language: string | null;
+	duration: number | null;
+}

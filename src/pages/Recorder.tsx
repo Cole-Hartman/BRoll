@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlbums } from '../hooks/useAlbums';
 import { immichApi } from '../api/immich';
+import { transcriptionApi } from '../api/transcription';
 import { Button } from '../components/common/Button';
 import styles from './Recorder.module.css';
 
@@ -85,6 +86,14 @@ export function Recorder() {
     try {
       const uploadResult = await immichApi.uploadAsset(selectedFile, description || undefined);
       await immichApi.addAssetsToAlbum(selectedAlbumId, [uploadResult.id]);
+
+      // Start transcription in background (don't block navigation)
+      const videoUrl = immichApi.getVideoUrl(uploadResult.id);
+      const apiKey = immichApi.getApiKey();
+      transcriptionApi.transcribe(uploadResult.id, videoUrl, apiKey).catch((err) => {
+        console.error('Background transcription failed:', err);
+      });
+
       navigate(`/album/${selectedAlbumId}`);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
