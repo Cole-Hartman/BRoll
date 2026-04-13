@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies for faster-whisper
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    build-essential \
     pkg-config \
     libavformat-dev \
     libavcodec-dev \
