@@ -389,6 +389,18 @@
   color: var(--color-error);
 }
 
+.transcriptionEmptyHint {
+  max-width: 17rem;
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.transcriptionRetryButton {
+  margin-top: var(--space-2);
+}
+
 @media (max-width: 1024px) {
   .mainContent {
     grid-template-columns: 1fr;

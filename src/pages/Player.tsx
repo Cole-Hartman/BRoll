@@ -61,6 +61,7 @@ export function Player() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const hideControlsTimer = useRef<number | null>(null);
 
@@ -111,6 +112,26 @@ export function Player() {
       console.error('Failed to copy:', err);
     }
   }, [transcription]);
+
+  const handleGenerateTranscription = useCallback(async () => {
+    if (!assetId || !immichApi.isConfigured()) return;
+    setTranscriptionError(null);
+    setIsTranscribing(true);
+    try {
+      const result = await transcriptionApi.transcribe(
+        assetId,
+        immichApi.getVideoUrl(assetId),
+        immichApi.getApiKey()
+      );
+      setTranscription(result);
+    } catch (err) {
+      setTranscriptionError(
+        err instanceof Error ? err.message : 'Transcription failed'
+      );
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, [assetId]);
 
   const resetControlsTimer = useCallback(() => {
     setShowControls(true);
@@ -520,12 +541,42 @@ export function Player() {
             {transcriptionError && (
               <div className={styles.transcriptionError}>
                 <p>{transcriptionError}</p>
+                {asset?.type === 'VIDEO' && immichApi.isConfigured() && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className={styles.transcriptionRetryButton}
+                    onClick={handleGenerateTranscription}
+                    isLoading={isTranscribing}
+                    disabled={isTranscribing}
+                  >
+                    Try again
+                  </Button>
+                )}
               </div>
             )}
 
             {!transcriptionLoading && !transcriptionError && !transcription && (
               <div className={styles.transcriptionEmpty}>
-                <p>No transcription available</p>
+                <p>No transcription yet.</p>
+                {asset?.type === 'VIDEO' && immichApi.isConfigured() ? (
+                  <>
+                    <p className={styles.transcriptionEmptyHint}>
+                      Generate one for this video (works for uploads made before transcription existed).
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={handleGenerateTranscription}
+                      isLoading={isTranscribing}
+                      disabled={isTranscribing}
+                    >
+                      Generate transcription
+                    </Button>
+                  </>
+                ) : asset?.type !== 'VIDEO' ? (
+                  <p className={styles.transcriptionEmptyHint}>Transcription is only available for videos.</p>
+                ) : null}
               </div>
             )}
 
