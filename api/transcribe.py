@@ -30,6 +30,11 @@ def resolve_video_url(video_url: str) -> str:
         return video_url
 
     if video_url.startswith("/"):
+        # Frontend may send proxy-style paths used in browser routing.
+        # Normalize them to Immich's direct API path for server-side fetches.
+        if video_url.startswith("/immich-api/"):
+            video_url = "/api/" + video_url[len("/immich-api/"):]
+
         if not settings.app_base_url:
             raise ValueError(
                 "Relative videoUrl provided but APP_BASE_URL is not set. "
