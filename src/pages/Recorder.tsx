@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlbums } from '../hooks/useAlbums';
-import { immichApi } from '../api/immich';
+import { immichApi, isImmichDuplicateUpload } from '../api/immich';
 import { transcriptionApi } from '../api/transcription';
 import { Button } from '../components/common/Button';
 import styles from './Recorder.module.css';
@@ -18,6 +18,7 @@ export function Recorder() {
   const [description, setDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadDuplicateNotice, setUploadDuplicateNotice] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,6 +45,7 @@ export function Recorder() {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setUploadError(null);
+      setUploadDuplicateNotice(null);
     }
   };
 
@@ -57,6 +59,7 @@ export function Recorder() {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setUploadError(null);
+      setUploadDuplicateNotice(null);
     }
   };
 
@@ -72,6 +75,7 @@ export function Recorder() {
     setPreviewUrl(null);
     setDescription('');
     setUploadError(null);
+    setUploadDuplicateNotice(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -82,9 +86,17 @@ export function Recorder() {
 
     setIsUploading(true);
     setUploadError(null);
+    setUploadDuplicateNotice(null);
 
     try {
       const uploadResult = await immichApi.uploadAsset(selectedFile, description || undefined);
+      if (isImmichDuplicateUpload(uploadResult)) {
+        setUploadDuplicateNotice(
+          'Immich reports this file as a duplicate. Here that usually means the same video still exists in Immich—including in trash—so no new asset was created and your album was not updated. Permanently delete the old copy from trash in Immich (or restore it if you want that version), then try again.',
+        );
+        return;
+      }
+
       await immichApi.addAssetsToAlbum(selectedAlbumId, [uploadResult.id]);
 
       // Start transcription in background (don't block navigation)
@@ -193,6 +205,12 @@ export function Recorder() {
                 </p>
               )}
             </div>
+
+            {uploadDuplicateNotice && (
+              <div className={styles.uploadDuplicateNotice} role="status">
+                {uploadDuplicateNotice}
+              </div>
+            )}
 
             {uploadError && (
               <div className={styles.uploadError}>{uploadError}</div>

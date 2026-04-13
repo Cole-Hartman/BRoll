@@ -58,7 +58,10 @@ export interface ExifInfo {
 
 export interface UploadResponse {
 	id: string;
-	duplicate: boolean;
+	/** Newer Immich returns `"duplicate"` when the file matches an existing asset */
+	status?: string;
+	/** Older responses used a boolean flag */
+	duplicate?: boolean;
 }
 
 export interface ApiError {

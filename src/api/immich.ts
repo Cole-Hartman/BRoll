@@ -137,8 +137,8 @@ class ImmichApi {
 
 		const result: UploadResponse = await response.json();
 
-		// Update description if provided
-		if (description) {
+		// Do not update metadata on duplicate responses (often trashed assets we should not touch)
+		if (description && !isImmichDuplicateUpload(result)) {
 			await this.updateAsset(result.id, { description });
 		}
 
@@ -194,6 +194,10 @@ class ImmichApi {
 			throw error;
 		}
 	}
+}
+
+export function isImmichDuplicateUpload(result: UploadResponse): boolean {
+	return result.status === 'duplicate' || result.duplicate === true;
 }
 
 export const immichApi = new ImmichApi();
